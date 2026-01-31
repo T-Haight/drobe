@@ -1,15 +1,15 @@
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:camera/camera.dart';
+import 'capture_state.dart';
 
 final captureControllerProvider =
-  StateNotifierProvider<CaptureController, CaptureState>(
-    (ref) => CaptureController(ref.read),
-  );
+    NotifierProvider<CaptureController, CaptureState>(
+      () => CaptureController(),
+    );
 
-class CaptureController extends StateNotifier<CaptureState> {
-  CaptureController(this.ref)
-      : super(CaptureState(status: CaptureStatus.idle));
-
-  final Ref ref;
+class CaptureController extends Notifier<CaptureState> {
+  @override
+  CaptureState build() => CaptureState(status: CaptureStatus.idle);
   CameraController? cameraController;
 
   Future<void> initCamera() async {
