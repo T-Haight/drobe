@@ -1,3 +1,9 @@
+import 'package:flutter/material.dart';
+import 'package:camera/camera.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'capture_controller.dart';
+import 'capture_state.dart';
+
 class CaptureScreen extends ConsumerStatefulWidget {
   const CaptureScreen({super.key});
 
@@ -15,13 +21,12 @@ class _CaptureScreenState extends ConsumerState<CaptureScreen> {
   @override
   Widget build(BuildContext context) {
     final state = ref.watch(captureControllerProvider);
-    final controller =
-        ref.read(captureControllerProvider.notifier).cameraController;
+    final controller = ref
+        .read(captureControllerProvider.notifier)
+        .cameraController;
 
     if (controller == null || !controller.value.isInitialized) {
-      return const Scaffold(
-        body: Center(child: CircularProgressIndicator()),
-      );
+      return const Scaffold(body: Center(child: CircularProgressIndicator()));
     }
 
     return Scaffold(
@@ -70,11 +75,11 @@ class _CaptureScreenState extends ConsumerState<CaptureScreen> {
                   backgroundColor: Colors.red,
                   onPressed: state.status == CaptureStatus.recording
                       ? ref
-                          .read(captureControllerProvider.notifier)
-                          .stopRecording
+                            .read(captureControllerProvider.notifier)
+                            .stopRecording
                       : ref
-                          .read(captureControllerProvider.notifier)
-                          .startRecording,
+                            .read(captureControllerProvider.notifier)
+                            .startRecording,
                   child: Icon(
                     state.status == CaptureStatus.recording
                         ? Icons.stop
@@ -87,5 +92,11 @@ class _CaptureScreenState extends ConsumerState<CaptureScreen> {
         ],
       ),
     );
+  }
+
+  @override
+  void dispose() {
+    ref.read(captureControllerProvider.notifier).cameraController?.dispose();
+    super.dispose();
   }
 }
