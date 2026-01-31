@@ -1,5 +1,5 @@
-name: flutter_application_1
-description: "A new Flutter project."
+name: drobe_application
+description: "Create a virtual closet for your clothes and generate outfits with AI."
 # The following line prevents the package from being accidentally published to
 # pub.dev using `flutter pub publish`. This is preferred for private packages.
 publish_to: 'none' # Remove this line if you wish to publish to pub.dev
@@ -31,9 +31,10 @@ dependencies:
   flutter:
     sdk: flutter
   camera: ^0.11.0
-  flutter_riverpod: ^2.5.0
-  permission_handler: ^11.0.0
-  go_router: ^14.0.0
+  flutter_riverpod: ^3.2.0
+  permission_handler: ^12.0.1
+  go_router: ^17.0.1
+  dio: ^5.9.0
 
   # The following adds the Cupertino Icons font to your application.
   # Use with the CupertinoIcons class for iOS style icons.
