@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'features/capture/capture_screen.dart';
+import 'features/capture/video_capture_screen.dart';
 
 void main() {
   runApp(const ProviderScope(child: MyApp()));
@@ -35,7 +35,7 @@ class _MyHomePageState extends State<MyHomePage> {
   void _navigateToCapture() {
     Navigator.push(
       context,
-      MaterialPageRoute(builder: (context) => const CaptureScreen()),
+      MaterialPageRoute(builder: (context) => const VideoCaptureScreen()),
     );
   }
 
