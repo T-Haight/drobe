@@ -1,3 +1,5 @@
+import 'package:drobe_application/shared/models/clothing_item.dart';
+
 enum VideoCaptureStatus {
   idle,
   recording,
@@ -6,6 +8,7 @@ enum VideoCaptureStatus {
   processing,
   success,
   error,
+  detecting
 }
 
 class VideoCaptureState {
@@ -13,12 +16,14 @@ class VideoCaptureState {
   final double progress;
   final String? error;
   final String? recordedVideoPath;
+  final List<ClothingItem> detectedItems;
 
   VideoCaptureState({
     required this.status,
     this.progress = 0,
     this.error,
     this.recordedVideoPath,
+    this.detectedItems = const [],
   });
 
   VideoCaptureState copyWith({
@@ -27,6 +32,7 @@ class VideoCaptureState {
     String? error,
     String? recordedVideoPath,
     bool clearVideoPath = false,
+    List<ClothingItem>? detectedItems,
   }) {
     return VideoCaptureState(
       status: status ?? this.status,
@@ -35,6 +41,7 @@ class VideoCaptureState {
       recordedVideoPath: clearVideoPath
           ? null
           : (recordedVideoPath ?? this.recordedVideoPath),
+      detectedItems: detectedItems ?? this.detectedItems,
     );
   }
 }

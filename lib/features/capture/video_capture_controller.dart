@@ -41,7 +41,13 @@ class VideoCaptureController extends Notifier<VideoCaptureState> {
       );
 
       await cameraController!.initialize();
-      state = state.copyWith(status: VideoCaptureStatus.idle);
+      state = state.copyWith(status: VideoCaptureStatus.detecting);
+
+      cameraController!.startImageStream((CameraImage image) async {
+        // Process the image for clothing detection
+        await processImageForDetection(image);
+      });
+
     } catch (e) {
       state = state.copyWith(
         status: VideoCaptureStatus.error,
@@ -50,36 +56,10 @@ class VideoCaptureController extends Notifier<VideoCaptureState> {
     }
   }
 
-  Future<void> startRecording() async {
-    state = state.copyWith(status: VideoCaptureStatus.recording);
-    await cameraController!.startVideoRecording();
-
-    Future.delayed(const Duration(seconds: 30), () {
-      if (state.status == VideoCaptureStatus.recording) {
-        stopRecording();
-      }
-    });
-  }
-
-  Future<void> stopRecording() async {
-    final videoFile = await cameraController!.stopVideoRecording();
-    state = state.copyWith(
-      status: VideoCaptureStatus.preview,
-      recordedVideoPath: videoFile.path,
-    );
-  }
-
-  Future<void> submitVideo() async {
-    // This will be called when user confirms the video
-    // The actual upload will be handled by the screen/repository
-    state = state.copyWith(status: VideoCaptureStatus.uploading);
-  }
-
-  void cancelPreview() {
-    // Return to idle state and clear the recorded video
-    state = state.copyWith(
-      status: VideoCaptureStatus.idle,
-      clearVideoPath: true,
-    );
+  // New method to process image for clothing detection
+  Future<void> processImageForDetection(CameraImage image) async {
+    // Convert image to the format required by the ML model
+    // Send the image to the ML model for detection
+    // Update state with detected items
   }
 }

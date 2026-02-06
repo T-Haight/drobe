@@ -1,5 +1,6 @@
 import 'package:drobe_application/core/api/api_client.dart';
 import 'package:drobe_application/shared/models/clothing_item.dart';
+import 'package:camera/camera.dart';
 import 'dart:io' if (dart.library.html) 'dart:html';
 import 'package:dio/dio.dart';
 import 'package:flutter/foundation.dart' show kIsWeb;
@@ -38,5 +39,23 @@ class VideoCaptureRepository {
     return (response.data as List)
         .map((json) => ClothingItem.fromJson(json))
         .toList();
+  }
+
+  // New method to send frames to the ML model for detection
+  Future<List<ClothingItem>> detectClothingItems(CameraImage image) async {
+    // Convert image to the format required by the ML model
+    final bytes = image.planes.map((plane) => plane.bytes).toList();
+    
+    // Send the image to the ML model for detection
+    
+
+    // Return the list of detected clothing items
+    return [];
+  }
+
+  // New method to add clothing items to the virtual closet asynchronously
+  Future<void> addToVirtualCloset(ClothingItem item) async {
+    // Prepare data for the database
+    // Use apiClient to send data to the cloud database
   }
 }

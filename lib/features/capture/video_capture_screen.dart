@@ -85,12 +85,12 @@ class _VideoCaptureScreenState extends ConsumerState<VideoCaptureScreen> {
       return const Scaffold(body: Center(child: CircularProgressIndicator()));
     }
 
-    // Show preview screen after recording
-    if (state.status == VideoCaptureStatus.preview &&
-        state.recordedVideoPath != null) {
-      return _buildPreviewScreen(state.recordedVideoPath!);
+    // Display camera feed
+    if (state.status == VideoCaptureStatus.detecting) {
+      return CameraPreview(controller);
     }
 
+    // Display detected items with bounding boxes
     return Scaffold(
       body: Stack(
         children: [
@@ -118,152 +118,6 @@ class _VideoCaptureScreenState extends ConsumerState<VideoCaptureScreen> {
                 fontSize: 16,
                 backgroundColor: Colors.black54,
               ),
-            ),
-          ),
-
-          /// Controls
-          Positioned(
-            bottom: 40,
-            left: 0,
-            right: 0,
-            child: Column(
-              children: [
-                if (state.status == VideoCaptureStatus.uploading)
-                  const LinearProgressIndicator(),
-
-                const SizedBox(height: 16),
-
-                FloatingActionButton(
-                  backgroundColor: Colors.red,
-                  onPressed: state.status == VideoCaptureStatus.recording
-                      ? ref
-                            .read(videoCaptureControllerProvider.notifier)
-                            .stopRecording
-                      : ref
-                            .read(videoCaptureControllerProvider.notifier)
-                            .startRecording,
-                  child: Icon(
-                    state.status == VideoCaptureStatus.recording
-                        ? Icons.stop
-                        : Icons.fiber_manual_record,
-                  ),
-                ),
-              ],
-            ),
-          ),
-        ],
-      ),
-    );
-  }
-
-  Widget _buildPreviewScreen(String videoPath) {
-    // Initialize video player if not already done
-    if (_videoPlayerController == null ||
-        _videoPlayerController!.dataSource != videoPath) {
-      _videoPlayerController?.dispose();
-
-      // Use network controller for web (blob URLs) and file controller for other platforms
-      if (kIsWeb) {
-        _videoPlayerController = VideoPlayerController.network(videoPath)
-          ..initialize().then((_) {
-            setState(() {});
-            _videoPlayerController!.play();
-            _videoPlayerController!.setLooping(true);
-          });
-      } else {
-        _videoPlayerController = VideoPlayerController.file(File(videoPath))
-          ..initialize().then((_) {
-            setState(() {});
-            _videoPlayerController!.play();
-            _videoPlayerController!.setLooping(true);
-          });
-      }
-    }
-
-    return Scaffold(
-      appBar: AppBar(
-        title: const Text('Preview Video'),
-        leading: IconButton(
-          icon: const Icon(Icons.close),
-          onPressed: () {
-            ref.read(videoCaptureControllerProvider.notifier).cancelPreview();
-            _videoPlayerController?.dispose();
-            _videoPlayerController = null;
-          },
-        ),
-      ),
-      body: Column(
-        children: [
-          Expanded(
-            child: Center(
-              child:
-                  _videoPlayerController != null &&
-                      _videoPlayerController!.value.isInitialized
-                  ? AspectRatio(
-                      aspectRatio: _videoPlayerController!.value.aspectRatio,
-                      child: VideoPlayer(_videoPlayerController!),
-                    )
-                  : const CircularProgressIndicator(),
-            ),
-          ),
-          Container(
-            padding: const EdgeInsets.all(16),
-            child: Row(
-              children: [
-                Expanded(
-                  child: OutlinedButton(
-                    onPressed: () {
-                      ref
-                          .read(videoCaptureControllerProvider.notifier)
-                          .cancelPreview();
-                      _videoPlayerController?.dispose();
-                      _videoPlayerController = null;
-                    },
-                    style: OutlinedButton.styleFrom(
-                      padding: const EdgeInsets.symmetric(vertical: 16),
-                    ),
-                    child: const Text('Cancel'),
-                  ),
-                ),
-                const SizedBox(width: 16),
-                Expanded(
-                  child: ElevatedButton(
-                    onPressed: () async {
-                      ref
-                          .read(videoCaptureControllerProvider.notifier)
-                          .submitVideo();
-                      try {
-                        final repository = ref.read(
-                          videoCaptureRepositoryProvider,
-                        );
-                        await repository.uploadVideo(videoPath);
-                        if (mounted) {
-                          Navigator.of(context).pop();
-                          ScaffoldMessenger.of(context).showSnackBar(
-                            const SnackBar(
-                              content: Text('Video uploaded successfully!'),
-                            ),
-                          );
-                        }
-                      } catch (e) {
-                        if (mounted) {
-                          ScaffoldMessenger.of(context).showSnackBar(
-                            SnackBar(content: Text('Upload failed: $e')),
-                          );
-                          ref
-                              .read(videoCaptureControllerProvider.notifier)
-                              .cancelPreview();
-                        }
-                      }
-                    },
-                    style: ElevatedButton.styleFrom(
-                      padding: const EdgeInsets.symmetric(vertical: 16),
-                      backgroundColor: Colors.green,
-                    ),
-                    child: const Text('Submit'),
-                  ),
-                ),
-              ],
             ),
           ),
         ],
