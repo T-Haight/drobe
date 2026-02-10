@@ -1,0 +1,27 @@
+# Web framework
+fastapi==0.115.0
+uvicorn[standard]==0.30.0
+
+# Database
+sqlalchemy==2.0.36
+psycopg2-binary==2.9.10
+alembic==1.14.0
+
+# Data validation / settings
+pydantic==2.10.0
+pydantic-settings==2.6.0
+
+# HTTP file handling
+python-multipart==0.0.12
+
+# Image processing
+pillow==11.0.0
+
+# Environment variables
+python-dotenv==1.0.1
+
+# ML (added in Phase 2)
+# ultralytics==8.3.0
+# opencv-python==4.10.0.84
+# torch==2.5.0
+# torchvision==0.20.0
