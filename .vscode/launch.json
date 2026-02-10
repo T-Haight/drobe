@@ -20,6 +20,24 @@
             "request": "launch",
             "type": "dart",
             "flutterMode": "release"
+        },
+        {
+            "name": "FastAPI Backend",
+            "type": "debugpy",
+            "request": "launch",
+            "module": "uvicorn",
+            "args": ["app.main:app", "--host", "0.0.0.0", "--port", "8000"],
+            "cwd": "${workspaceFolder}/backend",
+            "jinja": true,
+            "env": {
+                "DATABASE_URL": "postgresql://drobe:drobe@localhost:5432/drobe"
+            }
+        }
+    ],
+    "compounds": [
+        {
+            "name": "Full Stack (Flutter + FastAPI)",
+            "configurations": ["drobe", "FastAPI Backend"]
         }
     ]
 }
