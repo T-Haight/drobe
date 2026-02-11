@@ -25,12 +25,14 @@
             "name": "FastAPI Backend",
             "type": "debugpy",
             "request": "launch",
+            "python": "C:\\Users\\Tom\\anaconda3\\envs\\dro\\python.exe",
             "module": "uvicorn",
             "args": ["app.main:app", "--host", "0.0.0.0", "--port", "8000"],
             "cwd": "${workspaceFolder}/backend",
             "jinja": true,
             "env": {
-                "DATABASE_URL": "postgresql://drobe:drobe@localhost:5432/drobe"
+                "DATABASE_URL": "postgresql://drobe:drobe@localhost:5432/drobe",
+                "CORS_ORIGINS": "*"
             }
         }
     ],
