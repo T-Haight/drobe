@@ -1,6 +1,6 @@
+import 'package:camera/camera.dart';
 import 'package:dio/dio.dart';
 import '../../shared/models/detection.dart';
-import 'dart:io';
 
 class DetectionApi {
   final Dio dio;
@@ -9,20 +9,21 @@ class DetectionApi {
 
   DateTime _lastInference = DateTime.now();
 
-  Future<List<Detection>> detectFrame(File image) async {
+  Future<List<Detection>> detectFrame(XFile image) async {
     if (DateTime.now().difference(_lastInference).inMilliseconds < 400) {
       return [];
     }
     _lastInference = DateTime.now();
 
+    final bytes = await image.readAsBytes();
     final response = await dio.post(
       '/detect/frame',
       data: FormData.fromMap({
-        'image': await MultipartFile.fromFile(image.path),
+        'image': MultipartFile.fromBytes(bytes, filename: 'frame.jpg'),
       }),
     );
 
-    return response.data['detections']
+    return (response.data['detections'] as List)
         .map<Detection>((d) => Detection.fromJson(d))
         .toList();
   }

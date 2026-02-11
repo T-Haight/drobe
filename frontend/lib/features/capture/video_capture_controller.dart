@@ -1,5 +1,6 @@
 import 'dart:async';
-import 'dart:io';
+
+import 'package:flutter/foundation.dart';
 
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:camera/camera.dart';
@@ -74,12 +75,14 @@ class VideoCaptureController extends Notifier<VideoCaptureState> {
     try {
       final xFile = await cameraController!.takePicture();
       final detectionApi = ref.read(apiClientProvider);
-      final detections = await detectionApi.detectFrame(File(xFile.path));
+      final detections = await detectionApi.detectFrame(xFile);
+      debugPrint('[detect] got ${detections.length} detections');
       state = state.copyWith(detections: detections);
-    } catch (_) {
-      // Silently ignore detection errors — preview must stay responsive
+    } catch (e, st) {
+      debugPrint('[detect] error: $e\n$st');
     } finally {
       _isDetecting = false;
     }
   }
+
 }
