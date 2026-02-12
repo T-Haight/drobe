@@ -20,8 +20,8 @@ pillow==11.0.0
 # Environment variables
 python-dotenv==1.0.1
 
-# ML (added in Phase 2)
-# ultralytics==8.3.0
-# opencv-python==4.10.0.84
-# torch==2.5.0
-# torchvision==0.20.0
+# ML
+ultralytics==8.3.0
+opencv-python-headless==4.10.0.84
+torch==2.5.0
+torchvision==0.20.0
