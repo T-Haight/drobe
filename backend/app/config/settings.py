@@ -13,7 +13,7 @@ class Settings(BaseSettings):
     storage_path: str = "./storage"
 
     # ML settings
-    model_path: str = "yolov8n.pt"       # auto-downloads ~6 MB on first use
+    model_path: str = "deepfashion2_yolov8s-seg.pt"  # DeepFashion2: 13 clothing categories
     model_device: str = "auto"           # "auto" | "cpu" | "cuda" | "mps"
     confidence_threshold: float = 0.25
     iou_threshold: float = 0.45
