@@ -17,6 +17,7 @@ class VideoCaptureController extends Notifier<VideoCaptureState> {
   CameraController? cameraController;
   Timer? _detectionTimer;
   bool _isDetecting = false;
+  XFile? lastFrame;
 
   @override
   VideoCaptureState build() {
@@ -74,6 +75,7 @@ class VideoCaptureController extends Notifier<VideoCaptureState> {
     _isDetecting = true;
     try {
       final xFile = await cameraController!.takePicture();
+      lastFrame = xFile;
       final detectionApi = ref.read(apiClientProvider);
       final detections = await detectionApi.detectFrame(xFile);
       debugPrint('[detect] got ${detections.length} detections');

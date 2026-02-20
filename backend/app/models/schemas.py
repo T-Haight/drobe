@@ -21,3 +21,9 @@ class Detection(BaseModel):
 
 class DetectionResponse(BaseModel):
     detections: list[Detection]
+
+
+class WardrobeItemResponse(BaseModel):
+    id: str
+    label: str
+    image_url: str

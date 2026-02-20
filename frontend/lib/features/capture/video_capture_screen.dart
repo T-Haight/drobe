@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import 'package:flutter/material.dart';
 import 'package:camera/camera.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -14,19 +16,57 @@ class VideoCaptureScreen extends ConsumerStatefulWidget {
   ConsumerState<VideoCaptureScreen> createState() => _VideoCaptureScreenState();
 }
 
-class _VideoCaptureScreenState extends ConsumerState<VideoCaptureScreen> {
+class _VideoCaptureScreenState extends ConsumerState<VideoCaptureScreen>
+    with SingleTickerProviderStateMixin {
+  OverlayEntry? _confirmationOverlay;
+  Timer? _confirmationTimer;
+
   void _onDetectionTapped(Detection det) async {
-    await ref.read(wardrobeApiProvider).saveWardrobeItem(
-      detectionId: det.id,
-      bbox: {"x": det.x, "y": det.y, "width": det.width, "height": det.height},
-      label: det.label,
-    );
+    final controller = ref.read(videoCaptureControllerProvider.notifier);
+    final frame = controller.lastFrame;
+    if (frame == null) return;
 
-    if (!mounted) return;
+    try {
+      await ref.read(wardrobeApiProvider).saveWardrobeItem(
+        image: frame,
+        bbox: {
+          "x": det.x,
+          "y": det.y,
+          "width": det.width,
+          "height": det.height,
+        },
+        label: det.label,
+      );
 
-    ScaffoldMessenger.of(context).showSnackBar(
-      SnackBar(content: Text("${det.label} added to wardrobe")),
+      if (!mounted) return;
+      _showConfirmation(det.label);
+    } catch (e) {
+      if (!mounted) return;
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text("Failed to save ${det.label}")),
+      );
+    }
+  }
+
+  void _showConfirmation(String label) {
+    _dismissConfirmation();
+
+    final overlay = Overlay.of(context);
+    _confirmationOverlay = OverlayEntry(
+      builder: (context) => _ConfirmationPopup(label: label),
     );
+    overlay.insert(_confirmationOverlay!);
+
+    _confirmationTimer = Timer(const Duration(seconds: 2), () {
+      _dismissConfirmation();
+    });
+  }
+
+  void _dismissConfirmation() {
+    _confirmationTimer?.cancel();
+    _confirmationTimer = null;
+    _confirmationOverlay?.remove();
+    _confirmationOverlay = null;
   }
 
   @override
@@ -37,6 +77,7 @@ class _VideoCaptureScreenState extends ConsumerState<VideoCaptureScreen> {
 
   @override
   void dispose() {
+    _dismissConfirmation();
     ref.read(videoCaptureControllerProvider.notifier).cameraController?.dispose();
     super.dispose();
   }
@@ -114,6 +155,78 @@ class _VideoCaptureScreenState extends ConsumerState<VideoCaptureScreen> {
             ),
           ),
         ],
+      ),
+    );
+  }
+}
+
+class _ConfirmationPopup extends StatefulWidget {
+  final String label;
+  const _ConfirmationPopup({required this.label});
+
+  @override
+  State<_ConfirmationPopup> createState() => _ConfirmationPopupState();
+}
+
+class _ConfirmationPopupState extends State<_ConfirmationPopup>
+    with SingleTickerProviderStateMixin {
+  late final AnimationController _animController;
+  late final Animation<double> _fadeAnimation;
+
+  @override
+  void initState() {
+    super.initState();
+    _animController = AnimationController(
+      duration: const Duration(milliseconds: 300),
+      vsync: this,
+    );
+    _fadeAnimation = CurvedAnimation(
+      parent: _animController,
+      curve: Curves.easeInOut,
+    );
+    _animController.forward();
+
+    Future.delayed(const Duration(milliseconds: 1700), () {
+      if (mounted) _animController.reverse();
+    });
+  }
+
+  @override
+  void dispose() {
+    _animController.dispose();
+    super.dispose();
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return Positioned(
+      top: MediaQuery.of(context).padding.top + 12,
+      right: 16,
+      child: FadeTransition(
+        opacity: _fadeAnimation,
+        child: Material(
+          elevation: 4,
+          borderRadius: BorderRadius.circular(12),
+          color: Colors.green.shade700,
+          child: Padding(
+            padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+            child: Row(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                const Icon(Icons.check_circle, color: Colors.white, size: 20),
+                const SizedBox(width: 8),
+                Text(
+                  '${widget.label} added',
+                  style: const TextStyle(
+                    color: Colors.white,
+                    fontSize: 14,
+                    fontWeight: FontWeight.w500,
+                  ),
+                ),
+              ],
+            ),
+          ),
+        ),
       ),
     );
   }

@@ -1,9 +1,13 @@
+from pathlib import Path
+
 from pydantic_settings import BaseSettings, SettingsConfigDict
+
+_BACKEND_DIR = Path(__file__).resolve().parent.parent.parent
 
 
 class Settings(BaseSettings):
     model_config = SettingsConfigDict(
-        env_file=".env",
+        env_file=str(_BACKEND_DIR / ".env"),
         env_file_encoding="utf-8",
         case_sensitive=False,
     )
@@ -17,6 +21,11 @@ class Settings(BaseSettings):
     model_device: str = "auto"           # "auto" | "cpu" | "cuda" | "mps"
     confidence_threshold: float = 0.25
     iou_threshold: float = 0.45
+    
+    # Storage settings ("local" for dev, "s3" for production)
+    storage_backend: str = "local"
+    s3_bucket_name: str = ""
+    aws_region: str = "us-east-1"
 
     @property
     def cors_origins_list(self) -> list[str]:
